@@ -61,151 +61,54 @@ const MOCK_STOCKS = [
     "2024-11-11 05:33:12.803444",
   ],
 ];
-const MOCK_PRICE_HISTORY = {
-  AAPL: [
-    [
-      1,
-      "2024-10-09 04:00:00.000000",
-      224.98,
-      229.5,
-      224.58,
-      229.29,
-      33591100,
+
+// Helper function to generate realistic price movements
+const generatePriceHistory = (basePrice, days = 30) => {
+  const prices = [];
+  let currentPrice = basePrice;
+  const volatility = basePrice * 0.02; // 2% volatility
+
+  for (let i = 0; i < days; i++) {
+    const date = new Date(2024, 9, i + 1); // Starting from Oct 1, 2024
+    const dailyChange = (Math.random() - 0.5) * volatility;
+    const open = currentPrice;
+    const close = currentPrice + dailyChange;
+    const high = Math.max(open, close) + Math.random() * volatility * 0.5;
+    const low = Math.min(open, close) - Math.random() * volatility * 0.5;
+    const volume = Math.floor(Math.random() * 20000000) + 10000000;
+
+    prices.push([
+      i + 1,
+      date.toISOString().replace('T', ' ').split('.')[0],
+      Number(open.toFixed(2)),
+      Number(high.toFixed(2)),
+      Number(low.toFixed(2)),
+      Number(close.toFixed(2)),
+      volume,
       0,
       0,
-      "AAPL",
-    ],
-    [
-      2,
-      "2024-10-10 04:00:00.000000",
-      227.53,
-      229.25,
-      226.92,
-      228.79,
-      28183500,
-      0,
-      0,
-      "AAPL",
-    ],
-    [
-      3,
-      "2024-10-11 04:00:00.000000",
-      228.12,
-      230.5,
-      227.81,
-      229.98,
-      29876500,
-      0,
-      0,
-      "AAPL",
-    ],
-    [
-      4,
-      "2024-10-12 04:00:00.000000",
-      229.45,
-      231.2,
-      228.9,
-      230.45,
-      31245600,
-      0,
-      0,
-      "AAPL",
-    ],
-    [
-      5,
-      "2024-10-13 04:00:00.000000",
-      230.01,
-      232.5,
-      229.75,
-      231.89,
-      30157800,
-      0,
-      0,
-      "AAPL",
-    ],
-  ],
-  MSFT: [
-    [
-      1,
-      "2024-10-09 04:00:00.000000",
-      334.98,
-      339.5,
-      334.58,
-      339.29,
-      23591100,
-      0,
-      0,
-      "MSFT",
-    ],
-    [
-      2,
-      "2024-10-10 04:00:00.000000",
-      337.53,
-      339.25,
-      336.92,
-      338.79,
-      18183500,
-      0,
-      0,
-      "MSFT",
-    ],
-    [
-      3,
-      "2024-10-11 04:00:00.000000",
-      338.12,
-      340.5,
-      337.81,
-      339.98,
-      19876500,
-      0,
-      0,
-      "MSFT",
-    ],
-    [
-      4,
-      "2024-10-12 04:00:00.000000",
-      339.45,
-      341.2,
-      338.9,
-      340.45,
-      21245600,
-      0,
-      0,
-      "MSFT",
-    ],
-    [
-      5,
-      "2024-10-13 04:00:00.000000",
-      340.01,
-      342.5,
-      339.75,
-      341.89,
-      20157800,
-      0,
-      0,
-      "MSFT",
-    ],
-  ],
+      currentPrice > open ? 1 : -1, // Trend indicator
+    ]);
+
+    currentPrice = close;
+  }
+
+  return prices;
 };
+
+const MOCK_PRICE_HISTORY = {
+  'AAPL': generatePriceHistory(225.50),
+  'MSFT': generatePriceHistory(335.75),
+  'GOOGL': generatePriceHistory(140.25),
+  'AMZN': generatePriceHistory(145.80),
+  'META': generatePriceHistory(325.90),
+};
+
+// Test the data
+console.log('Sample AAPL data:', MOCK_PRICE_HISTORY['AAPL'].slice(0, 5));
 
 export const fetchStockList = async () => {
   return MOCK_STOCKS;
-};
-
-// Helper function to convert array to object format if needed
-const getStockObject = (stockArray) => {
-  return {
-    symbol: stockArray[0],
-    shortName: stockArray[1],
-    longName: stockArray[2],
-    sector: stockArray[3],
-    industry: stockArray[4],
-    marketCap: stockArray[5],
-    currency: stockArray[6],
-    exchange: stockArray[7],
-    type: stockArray[8],
-    lastUpdated: stockArray[9],
-  };
 };
 
 export const fetchStockDetail = async (symbol) => {
@@ -217,7 +120,7 @@ export const fetchStockDetail = async (symbol) => {
     throw new Error("Stock not found");
   }
 
-  return getStockObject(stock);
+  return stock;
 };
 
 const parsePriceData = (priceArray) => {
