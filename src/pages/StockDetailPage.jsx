@@ -19,6 +19,7 @@ import {
 import { format } from "d3-format";
 import { timeFormat } from "d3-time-format";
 import { scaleTime } from "d3-scale";
+import { formatBigNumber } from "../utils/formatters";
 
 const StockDetailPage = () => {
   const { symbol } = useParams();
@@ -28,17 +29,17 @@ const StockDetailPage = () => {
   const [dimensions, setDimensions] = useState({ width: 1200, height: 600 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [chartType, setChartType] = useState('line');
+  const [chartType, setChartType] = useState("line");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [stockDetails, prices] = await Promise.all([
           fetchStockDetail(symbol),
-          fetchStockPrices(symbol)
+          fetchStockPrices(symbol),
         ]);
         setStockData(stockDetails);
-        const formattedPrices = prices.map(price => ({
+        const formattedPrices = prices.map((price) => ({
           date: new Date(price[1]),
           open: price[2],
           high: price[3],
@@ -57,7 +58,7 @@ const StockDetailPage = () => {
     fetchData();
   }, [symbol]);
 
-  const xAccessor = d => d.date;
+  const xAccessor = (d) => d.date;
 
   if (loading) {
     return (
@@ -78,20 +79,20 @@ const StockDetailPage = () => {
 
   const xExtents = [
     xAccessor(priceData[0]),
-    xAccessor(priceData[priceData.length - 1])
+    xAccessor(priceData[priceData.length - 1]),
   ];
 
   const renderChart = () => {
     return (
-      <Chart id={1} yExtents={d => [d.high, d.low]}>
+      <Chart id={1} yExtents={(d) => [d.high, d.low]}>
         <XAxis />
         <YAxis />
-        {chartType === 'line' ? (
-          <LineSeries yAccessor={d => d.close} />
+        {chartType === "line" ? (
+          <LineSeries yAccessor={(d) => d.close} />
         ) : (
           <CandlestickSeries />
         )}
-        <OHLCTooltip origin={[-40, 0]}/>
+        <OHLCTooltip origin={[-40, 0]} />
         <MouseCoordinateX
           at="bottom"
           orient="bottom"
@@ -106,8 +107,8 @@ const StockDetailPage = () => {
           itemType="last"
           orient="right"
           edgeAt="right"
-          yAccessor={d => d.close}
-          fill={d => d.close > d.open ? "#26a69a" : "#ef5350"}
+          yAccessor={(d) => d.close}
+          fill={(d) => (d.close > d.open ? "#26a69a" : "#ef5350")}
         />
       </Chart>
     );
@@ -116,16 +117,17 @@ const StockDetailPage = () => {
   const getDailyChange = () => {
     const currentPrice = priceData[priceData.length - 1]?.close;
     const previousClose = priceData[priceData.length - 2]?.close;
-    
-    if (!currentPrice || !previousClose) return { change: 0, changeStr: '$0.00', percentStr: '0.00%' };
-    
+
+    if (!currentPrice || !previousClose)
+      return { change: 0, changeStr: "$0.00", percentStr: "0.00%" };
+
     const change = currentPrice - previousClose;
     const percentChange = (change / previousClose) * 100;
-    
+
     return {
       change,
       changeStr: `$${change.toFixed(2)}`,
-      percentStr: `${percentChange.toFixed(2)}%`
+      percentStr: `${percentChange.toFixed(2)}%`,
     };
   };
 
@@ -155,22 +157,22 @@ const StockDetailPage = () => {
               <h2 className="text-xl font-semibold">Price History</h2>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setChartType('line')}
+                  onClick={() => setChartType("line")}
                   className={`p-2 rounded-lg ${
-                    chartType === 'line' 
-                      ? 'bg-blue-100 text-blue-600' 
-                      : 'hover:bg-gray-100'
+                    chartType === "line"
+                      ? "bg-blue-100 text-blue-600"
+                      : "hover:bg-gray-100"
                   }`}
                   title="Line Chart"
                 >
                   <LineChart className="h-5 w-5" />
                 </button>
                 <button
-                  onClick={() => setChartType('candlestick')}
+                  onClick={() => setChartType("candlestick")}
                   className={`p-2 rounded-lg ${
-                    chartType === 'candlestick' 
-                      ? 'bg-blue-100 text-blue-600' 
-                      : 'hover:bg-gray-100'
+                    chartType === "candlestick"
+                      ? "bg-blue-100 text-blue-600"
+                      : "hover:bg-gray-100"
                   }`}
                   title="Candlestick Chart"
                 >
@@ -240,14 +242,16 @@ const StockDetailPage = () => {
               <div>
                 <p className="text-sm text-gray-500">Trading Volume</p>
                 <p className="text-lg font-medium">
-                  {priceData[priceData.length - 1]?.volume.toLocaleString()}
+                  {formatBigNumber(priceData[priceData.length - 1]?.volume)}
                 </p>
               </div>
 
               {/* Company Information */}
               <div>
                 <p className="text-sm text-gray-500">Market Cap</p>
-                <p className="text-lg font-medium">{stockData?.[5]} {stockData?.[6]}</p>
+                <p className="text-lg font-medium">
+                  {formatBigNumber(stockData?.[5])} {stockData?.[6]}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Sector</p>
@@ -261,9 +265,13 @@ const StockDetailPage = () => {
               {/* Price Change */}
               <div>
                 <p className="text-sm text-gray-500">Daily Change</p>
-                <p className={`text-lg font-medium ${
-                  getDailyChange().change >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <p
+                  className={`text-lg font-medium ${
+                    getDailyChange().change >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
                   {getDailyChange().changeStr} ({getDailyChange().percentStr})
                 </p>
               </div>

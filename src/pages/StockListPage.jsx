@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchStockList } from '../services/api_mock'
+import { formatBigNumber } from '../utils/formatters'
 
 const StockListPage = () => {
   const navigate = useNavigate()
@@ -84,7 +85,7 @@ const StockListPage = () => {
               <div className="text-gray-900">{stock[1]}</div>
               <div className="text-gray-900">{stock[3]}</div>
               <div className="text-gray-900">
-                {Number(stock[5]).toLocaleString()} {stock[6]}
+                {formatBigNumber(stock[5])} {stock[6]}
               </div>
             </div>
           ))}
