@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { fetchStockList } from '../services/api'
+import { fetchStockList } from '../services/api_mock'
 
 const StockListPage = () => {
   const navigate = useNavigate()
@@ -25,8 +25,8 @@ const StockListPage = () => {
   }, [])
 
   const filteredStocks = stocks.filter(stock => 
-    stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    stock.name.toLowerCase().includes(searchTerm.toLowerCase())
+    stock[0].toLowerCase().includes(searchTerm.toLowerCase()) ||
+    stock[1].toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   if (loading) {
@@ -70,23 +70,21 @@ const StockListPage = () => {
           <div className="grid grid-cols-4 gap-4 p-4 font-semibold text-gray-600 border-b">
             <div>Symbol</div>
             <div>Name</div>
-            <div>Price</div>
-            <div>Change</div>
+            <div>Sector</div>
+            <div>Market Cap</div>
           </div>
           
           {filteredStocks.map((stock) => (
             <div
-              key={stock.symbol}
-              onClick={() => navigate(`/stock/${stock.symbol}`)}
+              key={stock[0]}
+              onClick={() => navigate(`/stock/${stock[0]}`)}
               className="grid grid-cols-4 gap-4 p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
             >
-              <div className="font-medium text-blue-600">{stock.symbol}</div>
-              <div className="text-gray-900">{stock.name}</div>
-              <div className="text-gray-900">${stock.current_price}</div>
-              <div className={`${
-                stock.price_change >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {stock.price_change >= 0 ? '+' : ''}{stock.price_change}%
+              <div className="font-medium text-blue-600">{stock[0]}</div>
+              <div className="text-gray-900">{stock[1]}</div>
+              <div className="text-gray-900">{stock[3]}</div>
+              <div className="text-gray-900">
+                {Number(stock[5]).toLocaleString()} {stock[6]}
               </div>
             </div>
           ))}

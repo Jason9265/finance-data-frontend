@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../components/ui/card";
-import { fetchStockDetail } from "../services/api";
+import { fetchStockDetail } from "../services/api_mock";
 
 const StockDetailPage = () => {
   const { symbol } = useParams();
