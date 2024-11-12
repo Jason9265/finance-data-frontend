@@ -113,6 +113,22 @@ const StockDetailPage = () => {
     );
   };
 
+  const getDailyChange = () => {
+    const currentPrice = priceData[priceData.length - 1]?.close;
+    const previousClose = priceData[priceData.length - 2]?.close;
+    
+    if (!currentPrice || !previousClose) return { change: 0, changeStr: '$0.00', percentStr: '0.00%' };
+    
+    const change = currentPrice - previousClose;
+    const percentChange = (change / previousClose) * 100;
+    
+    return {
+      change,
+      changeStr: `$${change.toFixed(2)}`,
+      percentStr: `${percentChange.toFixed(2)}%`
+    };
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
@@ -187,13 +203,48 @@ const StockDetailPage = () => {
             <h2 className="text-xl font-semibold">Stock Details</h2>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
+              {/* Price Information */}
               <div>
                 <p className="text-sm text-gray-500">Latest Price</p>
                 <p className="text-lg font-medium">
                   ${priceData[priceData.length - 1]?.close.toFixed(2)}
                 </p>
               </div>
+              <div>
+                <p className="text-sm text-gray-500">Previous Close</p>
+                <p className="text-lg font-medium">
+                  ${priceData[priceData.length - 2]?.close.toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Open Price</p>
+                <p className="text-lg font-medium">
+                  ${priceData[priceData.length - 1]?.open.toFixed(2)}
+                </p>
+              </div>
+
+              {/* Trading Range */}
+              <div>
+                <p className="text-sm text-gray-500">Day's High</p>
+                <p className="text-lg font-medium">
+                  ${priceData[priceData.length - 1]?.high.toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Day's Low</p>
+                <p className="text-lg font-medium">
+                  ${priceData[priceData.length - 1]?.low.toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Trading Volume</p>
+                <p className="text-lg font-medium">
+                  {priceData[priceData.length - 1]?.volume.toLocaleString()}
+                </p>
+              </div>
+
+              {/* Company Information */}
               <div>
                 <p className="text-sm text-gray-500">Market Cap</p>
                 <p className="text-lg font-medium">{stockData?.[5]} {stockData?.[6]}</p>
@@ -205,6 +256,16 @@ const StockDetailPage = () => {
               <div>
                 <p className="text-sm text-gray-500">Industry</p>
                 <p className="text-lg font-medium">{stockData?.[4]}</p>
+              </div>
+
+              {/* Price Change */}
+              <div>
+                <p className="text-sm text-gray-500">Daily Change</p>
+                <p className={`text-lg font-medium ${
+                  getDailyChange().change >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {getDailyChange().changeStr} ({getDailyChange().percentStr})
+                </p>
               </div>
             </div>
           </CardContent>
