@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LineChart, CandlestickChart } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../components/ui/card";
 import { fetchStockDetail, fetchStockPrices } from "../services/api_mock";
 import {
@@ -28,6 +28,7 @@ const StockDetailPage = () => {
   const [dimensions, setDimensions] = useState({ width: 1200, height: 600 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [chartType, setChartType] = useState('line');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,6 +81,38 @@ const StockDetailPage = () => {
     xAccessor(priceData[priceData.length - 1])
   ];
 
+  const renderChart = () => {
+    return (
+      <Chart id={1} yExtents={d => [d.high, d.low]}>
+        <XAxis />
+        <YAxis />
+        {chartType === 'line' ? (
+          <LineSeries yAccessor={d => d.close} />
+        ) : (
+          <CandlestickSeries />
+        )}
+        <OHLCTooltip origin={[-40, 0]}/>
+        <MouseCoordinateX
+          at="bottom"
+          orient="bottom"
+          displayFormat={timeFormat("%Y-%m-%d")}
+        />
+        <MouseCoordinateY
+          at="right"
+          orient="right"
+          displayFormat={format(".2f")}
+        />
+        <EdgeIndicator
+          itemType="last"
+          orient="right"
+          edgeAt="right"
+          yAccessor={d => d.close}
+          fill={d => d.close > d.open ? "#26a69a" : "#ef5350"}
+        />
+      </Chart>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
@@ -102,7 +135,33 @@ const StockDetailPage = () => {
       <main className="max-w-7xl mx-auto px-4 py-6">
         <Card className="mb-6">
           <CardHeader>
-            <h2 className="text-xl font-semibold">Price History</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Price History</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setChartType('line')}
+                  className={`p-2 rounded-lg ${
+                    chartType === 'line' 
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'hover:bg-gray-100'
+                  }`}
+                  title="Line Chart"
+                >
+                  <LineChart className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setChartType('candlestick')}
+                  className={`p-2 rounded-lg ${
+                    chartType === 'candlestick' 
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'hover:bg-gray-100'
+                  }`}
+                  title="Candlestick Chart"
+                >
+                  <CandlestickChart className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-[600px]">
@@ -116,29 +175,7 @@ const StockDetailPage = () => {
                 xScale={scaleTime()}
                 xExtents={xExtents}
               >
-                <Chart id={1} yExtents={d => [d.high, d.low]}>
-                  <XAxis />
-                  <YAxis />
-                  <CandlestickSeries />
-                  <OHLCTooltip origin={[-40, 0]}/>
-                  <MouseCoordinateX
-                    at="bottom"
-                    orient="bottom"
-                    displayFormat={timeFormat("%Y-%m-%d")}
-                  />
-                  <MouseCoordinateY
-                    at="right"
-                    orient="right"
-                    displayFormat={format(".2f")}
-                  />
-                  <EdgeIndicator
-                    itemType="last"
-                    orient="right"
-                    edgeAt="right"
-                    yAccessor={d => d.close}
-                    fill={d => d.close > d.open ? "#26a69a" : "#ef5350"}
-                  />
-                </Chart>
+                {renderChart()}
                 <CrossHairCursor />
               </ChartCanvas>
             </div>
