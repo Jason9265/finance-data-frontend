@@ -183,7 +183,7 @@ const MOCK_STOCKS = [
 ];
 
 // Helper function to generate realistic price movements
-const generatePriceHistory = (basePrice, days = 30) => {
+const generatePriceHistory = (basePrice, days = 360) => {
   const prices = [];
   let currentPrice = basePrice;
   const volatility = basePrice * 0.02; // 2% volatility

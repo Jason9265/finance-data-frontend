@@ -132,8 +132,8 @@ const StockListPage = () => {
     const searchLower = searchTerm.toLowerCase();
     return filteredStocks.filter(
       stock =>
-        stock[0].toLowerCase().includes(searchLower) || // Symbol
-        stock[1].toLowerCase().includes(searchLower)    // Name
+        stock[0].toLowerCase().includes(searchLower) ||
+        stock[1].toLowerCase().includes(searchLower)
     );
   };
 
