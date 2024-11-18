@@ -183,13 +183,14 @@ const MOCK_STOCKS = [
 ];
 
 // Helper function to generate realistic price movements
-const generatePriceHistory = (basePrice, days = 360) => {
+const generatePriceHistory = (basePrice, days = 700) => {
   const prices = [];
   let currentPrice = basePrice;
-  const volatility = basePrice * 0.02; // 2% volatility
+  const volatility = basePrice * 0.02;
 
-  for (let i = 0; i < days; i++) {
-    const date = new Date(2024, 9, i + 1); // Starting from Oct 1, 2024
+  for (let i = days; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
     const dailyChange = (Math.random() - 0.5) * volatility;
     const open = currentPrice;
     const close = currentPrice + dailyChange;

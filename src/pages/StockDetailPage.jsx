@@ -21,6 +21,15 @@ import { timeFormat } from "d3-time-format";
 import { scaleTime } from "d3-scale";
 import { formatBigNumber } from "../utils/formatters";
 
+const TIME_RANGES = {
+  // '1D': { days: 1, label: '1 Day' },
+  '1W': { days: 7, label: '1 Week' },
+  '1M': { days: 30, label: '1 Month' },
+  '3M': { days: 90, label: '3 Months' },
+  '1Y': { days: 365, label: '1 Year' },
+  'ALL': { days: null, label: 'All Time' }
+};
+
 const StockDetailPage = () => {
   const { symbol } = useParams();
   const navigate = useNavigate();
@@ -30,6 +39,8 @@ const StockDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [chartType, setChartType] = useState("line");
+  const [selectedRange, setSelectedRange] = useState('1M');
+  const [allPriceData, setAllPriceData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +58,8 @@ const StockDetailPage = () => {
           close: price[5],
           volume: price[6],
         }));
-        setPriceData(formattedPrices);
+        setAllPriceData(formattedPrices);
+        setPriceData(filterDataByTimeRange(formattedPrices, selectedRange));
       } catch (err) {
         setError("Failed to fetch stock data");
       } finally {
@@ -57,6 +69,20 @@ const StockDetailPage = () => {
 
     fetchData();
   }, [symbol]);
+
+  useEffect(() => {
+    setPriceData(filterDataByTimeRange(allPriceData, selectedRange));
+  }, [selectedRange, allPriceData]);
+
+  const filterDataByTimeRange = (data, range) => {
+    if (!data.length || range === 'ALL') return data;
+    
+    const days = TIME_RANGES[range].days;
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    return data.filter(item => item.date >= cutoffDate);
+  };
 
   const xAccessor = (d) => d.date;
 
@@ -155,29 +181,49 @@ const StockDetailPage = () => {
           <CardHeader>
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Price History</h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setChartType("line")}
-                  className={`p-2 rounded-lg ${
-                    chartType === "line"
-                      ? "bg-blue-100 text-blue-600"
-                      : "hover:bg-gray-100"
-                  }`}
-                  title="Line Chart"
-                >
-                  <LineChart className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={() => setChartType("candlestick")}
-                  className={`p-2 rounded-lg ${
-                    chartType === "candlestick"
-                      ? "bg-blue-100 text-blue-600"
-                      : "hover:bg-gray-100"
-                  }`}
-                  title="Candlestick Chart"
-                >
-                  <CandlestickChart className="h-5 w-5" />
-                </button>
+              <div className="flex gap-4">
+                {/* Time Range Selector */}
+                <div className="flex gap-2 mr-4">
+                  {Object.entries(TIME_RANGES).map(([key, { label }]) => (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedRange(key)}
+                      className={`px-3 py-1 rounded-lg text-sm ${
+                        selectedRange === key
+                          ? "bg-blue-100 text-blue-600"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Chart Type Selector */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setChartType("line")}
+                    className={`p-2 rounded-lg ${
+                      chartType === "line"
+                        ? "bg-blue-100 text-blue-600"
+                        : "hover:bg-gray-100"
+                    }`}
+                    title="Line Chart"
+                  >
+                    <LineChart className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => setChartType("candlestick")}
+                    className={`p-2 rounded-lg ${
+                      chartType === "candlestick"
+                        ? "bg-blue-100 text-blue-600"
+                        : "hover:bg-gray-100"
+                    }`}
+                    title="Candlestick Chart"
+                  >
+                    <CandlestickChart className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </CardHeader>
