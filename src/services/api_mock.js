@@ -278,7 +278,3 @@ export const fetchStockPrices = async (symbol) => {
 
   return prices;
 };
-export const fetchStockPricesAsObjects = async (symbol) => {
-  const prices = await fetchStockPrices(symbol);
-  return prices.map((price) => parsePriceData(price));
-};

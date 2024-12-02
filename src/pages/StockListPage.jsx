@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchStockList, fetchStockPrices } from "../services/api_mock";
+import { fetchStockList, fetchStockPrices } from "../services/api";
 import { formatBigNumber } from "../utils/formatters";
 import StockFilter from "../components/StockFilter";
 
@@ -77,7 +77,6 @@ const StockListPage = () => {
         const data = await fetchStockList();
         setStocks(data);
 
-        // Fetch prices for all stocks
         const pricePromises = data.map(async (stock) => {
           const prices = await fetchStockPrices(stock[0]);
           return [stock[0], prices];

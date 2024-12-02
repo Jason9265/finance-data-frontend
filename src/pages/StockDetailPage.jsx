@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, LineChart, CandlestickChart } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../components/ui/card";
-import { fetchStockDetail, fetchStockPrices } from "../services/api_mock";
+import { fetchStockDetail, fetchStockPrices } from "../services/api";
 import {
   ChartCanvas,
   Chart,
@@ -47,7 +47,7 @@ const StockDetailPage = () => {
       try {
         const [stockDetails, prices] = await Promise.all([
           fetchStockDetail(symbol),
-          fetchStockPrices(symbol),
+          fetchStockPrices(symbol, 365),
         ]);
         setStockData(stockDetails);
         const formattedPrices = prices.map((price) => ({
